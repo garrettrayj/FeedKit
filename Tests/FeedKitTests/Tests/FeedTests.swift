@@ -107,4 +107,17 @@ struct FeedTests: FeedKitTestable {
     #expect(actual.rss == nil)
     #expect(actual.json == nil)
   }
+
+  @Test
+  func lossyData() throws {
+    // Given
+    let data = data(resource: "LossyRSS", withExtension: "xml")
+
+    // When
+    let actual = try Feed(data: data, lossy: true)
+
+    // Then
+    #expect(actual.rss?.channel?.items?.first?.enclosure?.attributes?.length == nil)
+    #expect(actual.rss?.channel?.items?.first?.media?.contents?.first?.attributes?.height == nil)
+  }
 }
