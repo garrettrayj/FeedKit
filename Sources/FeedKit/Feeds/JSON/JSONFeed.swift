@@ -216,6 +216,7 @@ extension JSONFeed: Codable {
 
   public init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
+    let lossy = decoder.isFeedLossyDecodingEnabled
     version = try values.decode(String.self, forKey: .version)
     title = try values.decodeIfPresent(String.self, forKey: .title)
     userComment = try values.decodeIfPresent(String.self, forKey: .user_comment)
@@ -225,7 +226,7 @@ extension JSONFeed: Codable {
     nextURL = try values.decodeIfPresent(String.self, forKey: .next_url)
     icon = try values.decodeIfPresent(String.self, forKey: .icon)
     favicon = try values.decodeIfPresent(String.self, forKey: .favicon)
-    expired = try values.decodeIfPresent(Bool.self, forKey: .expired)
+    expired = try values.decodeLossyIfPresent(Bool.self, forKey: .expired, lossy: lossy)
     let author = try values.decodeIfPresent(JSONFeedAuthor.self, forKey: .author)
     let authors = try values.decodeIfPresent([JSONFeedAuthor].self, forKey: .authors)
     // JSON Feed 1.1 deprecated the singular `author` in favour of `authors`,
@@ -240,9 +241,11 @@ extension JSONFeed: Codable {
 }
 
 extension JSONFeed: FeedInitializable {
-  public init(data: Data) throws {
+  public init(data: Data, lossy: Bool = false) throws {
     let decoder: JSONDecoder = .init()
-    self = try decoder.decode(JSONFeed.self, from: data)
+    self = try FeedDecodingContext.withLossyDecoding(lossy) {
+      try decoder.decode(JSONFeed.self, from: data)
+    }
   }
 }
 

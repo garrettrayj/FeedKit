@@ -94,18 +94,19 @@ extension Feed: FeedInitializable {
   /// `URLSession`.
   ///
   /// - Parameter data: The raw feed data to parse.
+  /// - Parameter lossy: When `true`, malformed optional scalar values decode as `nil`.
   /// - Throws: `FeedError.unknownFeedFormat` if the feed type cannot be determined or
   ///           if parsing fails.
-  public init(data: Data) throws {
+  public init(data: Data, lossy: Bool = false) throws {
     let feedType = try FeedType(data: data)
 
     switch feedType {
     case .atom:
-      let feed = try AtomFeed(data: data)
+      let feed = try AtomFeed(data: data, lossy: lossy)
       self = .atom(feed)
 
     case .rss:
-      let feed = try RSSFeed(data: data)
+      let feed = try RSSFeed(data: data, lossy: lossy)
       self = .rss(feed)
 
     case .rdf:
@@ -113,7 +114,7 @@ extension Feed: FeedInitializable {
       self = .rdf(feed)
 
     case .json:
-      let feed = try JSONFeed(data: data)
+      let feed = try JSONFeed(data: data, lossy: lossy)
       self = .json(feed)
     }
   }
