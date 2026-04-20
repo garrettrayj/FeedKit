@@ -91,4 +91,17 @@ struct FeedTests: FeedKitTestable {
     #expect(actual.rss?.channel?.items?.first?.enclosure?.attributes?.length == nil)
     #expect(actual.rss?.channel?.items?.first?.media?.contents?.first?.attributes?.height == nil)
   }
+
+  @Test
+  func rssDataWithXMLPreamble() throws {
+    // Given
+    let data = data(resource: "RSSDetection", withExtension: "xml")
+
+    // When
+    let actual = try Feed(data: data)
+
+    // Then
+    #expect(actual.rss != nil)
+    #expect(actual.rss?.channel?.title == "Juxtapoz Magazine - Home")
+  }
 }

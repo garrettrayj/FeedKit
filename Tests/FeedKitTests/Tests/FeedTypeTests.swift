@@ -67,4 +67,17 @@ struct FeedTypeTests: FeedKitTestable {
     #expect(actual.isJson)
     #expect(expected == actual)
   }
+
+  @Test
+  func rssFeedTypeWithXMLPreamble() throws {
+    // Given
+    let data = data(resource: "RSSDetection", withExtension: "xml")
+
+    // When
+    let actual = try FeedType(data: data)
+
+    // Then
+    #expect(actual.isXML)
+    #expect(actual == .rss)
+  }
 }
