@@ -33,11 +33,9 @@ import Foundation
 /// using `FeedType` can be helpful when you want to identify the feed type without
 /// parsing and decoding the entire feed.
 ///
-/// An `inspectionPrefixLength` constant limits the
-/// number of bytes inspected when determining the feed type. This helps improve
-/// performance by only inspecting a small portion of the data, which is usually
-/// sufficient for detecting the feed format. Payloads shorter than the limit are
-/// inspected in full.
+/// Detection locates the document's root element, skipping any prolog (an XML
+/// declaration, stylesheet processing instructions, comments, and a DOCTYPE)
+/// that precedes it, so feeds with long preambles are identified correctly.
 ///
 /// Example using `switch`:
 /// ```swift
@@ -88,14 +86,6 @@ public extension FeedType {
   }
 }
 
-/// The number of bytes to inspect when determining the feed type.
-///
-/// Detection only needs to reach the document's root element, but feeds may
-/// carry a prolog (an XML declaration, stylesheet processing instructions, and
-/// comments) before it. 256 bytes covers the prologs seen in the wild, such as
-/// The Atlantic's Atom feed, where `<feed>` starts at byte 149.
-private let inspectionPrefixLength = 256
-
 // MARK: - FeedInitializable
 
 extension FeedType: FeedInitializable {
@@ -104,10 +94,10 @@ extension FeedType: FeedInitializable {
   /// - Parameter data: A `Data` object representing a feed to be inspected.
   /// - Returns: A `FeedType` if the data matches a known feed format, otherwise `nil`.
   public init(data: Data) throws {
-    // Inspect at most the first `inspectionPrefixLength` bytes, or the whole
-    // payload when it is shorter. This helps improve performance while still
-    // providing enough data to reliably detect the feed format.
-    let string: String = .init(decoding: data.prefix(inspectionPrefixLength), as: UTF8.self)
+    // Detection stops at the root element, so the whole payload is decoded but
+    // only its prolog is scanned. Feeds carry prologs of arbitrary length, so a
+    // fixed prefix cannot be relied upon.
+    let string: String = .init(decoding: data, as: UTF8.self)
 
     // Determine the feed type
     guard let feedType = FeedType.detectFeedType(from: string) else {
@@ -154,13 +144,87 @@ public extension FeedType {
   /// - Parameter string: A string representation of the feed to be inspected.
   /// - Returns: A `FeedType` if the string matches a known XML feed format, otherwise `nil`.
   private static func detectXMLFeedType(in string: String) -> FeedType? {
-    if string.contains("<rss") {
-      return .rss
-    } else if string.contains("<rdf") {
-      return .rdf
-    } else if string.contains("<feed") {
-      return .atom
+    guard let rootElementName = firstXMLElementName(in: string)?.lowercased() else {
+      return nil
     }
+
+    switch rootElementName {
+    case "rss":
+      return .rss
+    case "rdf:rdf", "rdf":
+      return .rdf
+    case "feed":
+      return .atom
+    default:
+      return nil
+    }
+  }
+
+  /// Returns the name of the first XML element in the string, skipping the
+  /// XML declaration, processing instructions, comments, and DOCTYPE.
+  ///
+  /// - Parameter string: A string representation of the feed to be inspected.
+  /// - Returns: The root element name, including any namespace prefix, or `nil`.
+  private static func firstXMLElementName(in string: String) -> String? {
+    var currentIndex = string.startIndex
+
+    while currentIndex < string.endIndex {
+      guard let openIndex = string[currentIndex...].firstIndex(of: "<") else {
+        return nil
+      }
+
+      let contentStartIndex = string.index(after: openIndex)
+      guard contentStartIndex < string.endIndex else {
+        return nil
+      }
+
+      if string[contentStartIndex] == "?" {
+        guard let endIndex = string[contentStartIndex...].range(of: "?>")?.upperBound else {
+          return nil
+        }
+        currentIndex = endIndex
+        continue
+      }
+
+      if string[contentStartIndex] == "!" {
+        if string[contentStartIndex...].hasPrefix("!--") {
+          guard let endIndex = string[contentStartIndex...].range(of: "-->")?.upperBound else {
+            return nil
+          }
+          currentIndex = endIndex
+          continue
+        }
+
+        guard let endIndex = string[contentStartIndex...].firstIndex(of: ">") else {
+          return nil
+        }
+        currentIndex = string.index(after: endIndex)
+        continue
+      }
+
+      if string[contentStartIndex] == "/" {
+        currentIndex = string.index(after: contentStartIndex)
+        continue
+      }
+
+      let nameStartIndex = contentStartIndex
+      var nameEndIndex = nameStartIndex
+
+      while nameEndIndex < string.endIndex {
+        let character = string[nameEndIndex]
+        if character.isWhitespace || character == ">" || character == "/" {
+          break
+        }
+        nameEndIndex = string.index(after: nameEndIndex)
+      }
+
+      guard nameStartIndex < nameEndIndex else {
+        return nil
+      }
+
+      return String(string[nameStartIndex ..< nameEndIndex])
+    }
+
     return nil
   }
 }
