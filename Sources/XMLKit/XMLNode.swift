@@ -138,8 +138,17 @@ class XMLNode: Codable, Equatable, Hashable {
     children?.first(where: { $0.name == name })
   }
 
+  /// Returns true only for an exact element-name match.
+  ///
+  /// Namespace-prefixed siblings such as `source:markdown` should not satisfy
+  /// lookups for plain element names such as `source`.
   func hasChild(for name: String) -> Bool {
-    children?.first(where: { $0.name == name || $0.prefix == name }) != nil
+    children?.contains(where: { $0.name == name }) == true
+  }
+
+  /// Returns true when any child belongs to the given namespace prefix.
+  func hasNamespacedChild(forPrefix prefix: String) -> Bool {
+    children?.contains(where: { $0.prefix == prefix }) == true
   }
 
   func addChild(_ child: XMLNode) {

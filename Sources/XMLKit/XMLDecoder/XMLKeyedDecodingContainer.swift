@@ -164,6 +164,27 @@ class XMLKeyedDecodingContainer<Key: CodingKey>: KeyedDecodingContainerProtocol 
     return try decoder.decode(node: child, as: T.self)
   }
 
+  func decodeIfPresent<T: Decodable>(_ type: T.Type, forKey key: Key) throws -> T? {
+    // Namespace-aware models such as `dc`, `media`, and `source` extensions
+    // decode from the current node and need a prefix check for presence.
+    if type is XMLNamespaceCodable.Type {
+      guard
+        node.hasChild(for: key.stringValue) ||
+        node.hasNamespacedChild(forPrefix: key.stringValue)
+      else {
+        return nil
+      }
+
+      return try decode(type, forKey: key)
+    }
+
+    guard node.hasChild(for: key.stringValue) else {
+      return nil
+    }
+
+    return try decode(type, forKey: key)
+  }
+
   // MARK: -
 
   func nestedContainer<NestedKey: CodingKey>(keyedBy _: NestedKey.Type, forKey _: Key) throws -> KeyedDecodingContainer<NestedKey> {

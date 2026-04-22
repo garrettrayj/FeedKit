@@ -22,6 +22,7 @@
 // SOFTWARE.
 
 @testable import FeedKit
+import Foundation
 import Testing
 
 @Suite("RSS")
@@ -64,5 +65,37 @@ struct RSSTests: FeedKitTestable {
     #expect(actual.channel?.items?.first?.enclosure?.attributes?.length == nil)
     #expect(actual.channel?.items?.first?.media?.contents?.first?.attributes?.height == nil)
     #expect(actual.channel?.items?.first?.media?.contents?.first?.attributes?.width == 1280)
+  }
+
+  @Test
+  func namespacedSourceExtensionDoesNotDecodeAsRSSSource() throws {
+    // Given
+    let data = Data(
+      """
+      <rss xmlns:source="http://source.scripting.com/" version="2.0">
+        <channel>
+          <title>Jonathan Hays</title>
+          <link>https://jonhays.me/</link>
+          <description></description>
+          <item>
+            <title></title>
+            <link>https://jonhays.me/2026/04/16/finished-reading-marble-hall-murders.html</link>
+            <pubDate>Thu, 16 Apr 2026 22:20:08 -0700</pubDate>
+            <guid>http://cheesemaker.micro.blog/2026/04/16/finished-reading-marble-hall-murders.html</guid>
+            <description>Finished reading Marble Hall Murders</description>
+            <source:markdown>Finished reading: [Marble Hall Murders](https://micro.blog/books/9780063444621)</source:markdown>
+          </item>
+        </channel>
+      </rss>
+      """.utf8
+    )
+
+    // When
+    let actual = try RSSFeed(data: data)
+
+    // Then
+    #expect(actual.channel?.items?.count == 1)
+    #expect(actual.channel?.items?.first?.source == nil)
+    #expect(actual.channel?.items?.first?.markdown == "Finished reading: [Marble Hall Murders](https://micro.blog/books/9780063444621)")
   }
 }
