@@ -96,6 +96,26 @@ public struct MediaContent {
       self.lang = lang
     }
 
+    public init(from decoder: any Decoder) throws {
+      let container = try decoder.container(keyedBy: CodingKeys.self)
+      let lossy = decoder.isFeedLossyDecodingEnabled
+
+      url = try container.decodeIfPresent(String.self, forKey: .url)
+      fileSize = try container.decodeLossyIfPresent(Int.self, forKey: .fileSize, lossy: lossy)
+      type = try container.decodeIfPresent(String.self, forKey: .type)
+      medium = try container.decodeIfPresent(String.self, forKey: .medium)
+      isDefault = try container.decodeLossyIfPresent(Bool.self, forKey: .isDefault, lossy: lossy)
+      expression = try container.decodeIfPresent(String.self, forKey: .expression)
+      bitrate = try container.decodeLossyIfPresent(Int.self, forKey: .bitrate, lossy: lossy)
+      framerate = try container.decodeLossyIfPresent(Double.self, forKey: .framerate, lossy: lossy)
+      samplingrate = try container.decodeLossyIfPresent(Double.self, forKey: .samplingrate, lossy: lossy)
+      channels = try container.decodeLossyIfPresent(Int.self, forKey: .channels, lossy: lossy)
+      duration = try container.decodeLossyIfPresent(Int.self, forKey: .duration, lossy: lossy)
+      height = try container.decodeLossyIfPresent(Int.self, forKey: .height, lossy: lossy)
+      width = try container.decodeLossyIfPresent(Int.self, forKey: .width, lossy: lossy)
+      lang = try container.decodeIfPresent(String.self, forKey: .lang)
+    }
+
     // MARK: Public
 
     /// Should specify the direct URL to the media object. If not included,
@@ -159,26 +179,6 @@ public struct MediaContent {
     /// attribute.
     public var lang: String?
 
-    public init(from decoder: any Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      let lossy = decoder.isFeedLossyDecodingEnabled
-
-      url = try container.decodeIfPresent(String.self, forKey: .url)
-      fileSize = try container.decodeLossyIfPresent(Int.self, forKey: .fileSize, lossy: lossy)
-      type = try container.decodeIfPresent(String.self, forKey: .type)
-      medium = try container.decodeIfPresent(String.self, forKey: .medium)
-      isDefault = try container.decodeLossyIfPresent(Bool.self, forKey: .isDefault, lossy: lossy)
-      expression = try container.decodeIfPresent(String.self, forKey: .expression)
-      bitrate = try container.decodeLossyIfPresent(Int.self, forKey: .bitrate, lossy: lossy)
-      framerate = try container.decodeLossyIfPresent(Double.self, forKey: .framerate, lossy: lossy)
-      samplingrate = try container.decodeLossyIfPresent(Double.self, forKey: .samplingrate, lossy: lossy)
-      channels = try container.decodeLossyIfPresent(Int.self, forKey: .channels, lossy: lossy)
-      duration = try container.decodeLossyIfPresent(Int.self, forKey: .duration, lossy: lossy)
-      height = try container.decodeLossyIfPresent(Int.self, forKey: .height, lossy: lossy)
-      width = try container.decodeLossyIfPresent(Int.self, forKey: .width, lossy: lossy)
-      lang = try container.decodeIfPresent(String.self, forKey: .lang)
-    }
-
     public func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -197,6 +197,8 @@ public struct MediaContent {
       try container.encodeIfPresent(width, forKey: .width)
       try container.encodeIfPresent(lang, forKey: .lang)
     }
+
+    // MARK: Private
 
     private enum CodingKeys: String, CodingKey {
       case url

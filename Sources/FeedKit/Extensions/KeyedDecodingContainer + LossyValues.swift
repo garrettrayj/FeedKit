@@ -24,7 +24,7 @@
 import Foundation
 
 extension KeyedDecodingContainer {
-  func decodeLossyIfPresent(_ type: Int64.Type, forKey key: Key, lossy: Bool) throws -> Int64? {
+  func decodeLossyIfPresent(_: Int64.Type, forKey key: Key, lossy: Bool) throws -> Int64? {
     if !lossy {
       return try decodeIfPresent(Int64.self, forKey: key)
     }
@@ -43,7 +43,7 @@ extension KeyedDecodingContainer {
     return Int64(value)
   }
 
-  func decodeLossyIfPresent(_ type: Int.Type, forKey key: Key, lossy: Bool) throws -> Int? {
+  func decodeLossyIfPresent(_: Int.Type, forKey key: Key, lossy: Bool) throws -> Int? {
     if !lossy {
       return try decodeIfPresent(Int.self, forKey: key)
     }
@@ -62,7 +62,7 @@ extension KeyedDecodingContainer {
     return Int(value)
   }
 
-  func decodeLossyIfPresent(_ type: Double.Type, forKey key: Key, lossy: Bool) throws -> Double? {
+  func decodeLossyIfPresent(_: Double.Type, forKey key: Key, lossy: Bool) throws -> Double? {
     if !lossy {
       return try decodeIfPresent(Double.self, forKey: key)
     }
@@ -81,7 +81,7 @@ extension KeyedDecodingContainer {
     return Double(value)
   }
 
-  func decodeLossyIfPresent(_ type: Bool.Type, forKey key: Key, lossy: Bool) throws -> Bool? {
+  func decodeLossyIfPresent(_: Bool.Type, forKey key: Key, lossy: Bool) throws -> Bool? {
     if !lossy {
       return try decodeIfPresent(Bool.self, forKey: key)
     }
@@ -102,7 +102,7 @@ extension KeyedDecodingContainer {
 }
 
 enum FeedDecodingContext {
-  private static let key = "FeedKit.feedLossyDecoding"
+  // MARK: Internal
 
   static var isLossyDecodingEnabled: Bool {
     Thread.current.threadDictionary[key] as? Bool ?? false
@@ -120,6 +120,10 @@ enum FeedDecodingContext {
     }
     return try operation()
   }
+
+  // MARK: Private
+
+  private static let key = "FeedKit.feedLossyDecoding"
 }
 
 extension Decoder {

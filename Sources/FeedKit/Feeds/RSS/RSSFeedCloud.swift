@@ -42,6 +42,17 @@ public struct RSSFeedCloudAttributes: Codable, Equatable, Hashable, Sendable {
     self.protocol = `protocol`
   }
 
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let lossy = decoder.isFeedLossyDecodingEnabled
+
+    domain = try container.decodeIfPresent(String.self, forKey: .domain)
+    port = try container.decodeLossyIfPresent(Int.self, forKey: .port, lossy: lossy)
+    path = try container.decodeIfPresent(String.self, forKey: .path)
+    registerProcedure = try container.decodeIfPresent(String.self, forKey: .registerProcedure)
+    `protocol` = try container.decodeIfPresent(String.self, forKey: .protocol)
+  }
+
   // MARK: Public
 
   /// The domain to register notification to.
@@ -62,17 +73,6 @@ public struct RSSFeedCloudAttributes: Codable, Equatable, Hashable, Sendable {
   /// element.
   public var `protocol`: String?
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let lossy = decoder.isFeedLossyDecodingEnabled
-
-    domain = try container.decodeIfPresent(String.self, forKey: .domain)
-    port = try container.decodeLossyIfPresent(Int.self, forKey: .port, lossy: lossy)
-    path = try container.decodeIfPresent(String.self, forKey: .path)
-    registerProcedure = try container.decodeIfPresent(String.self, forKey: .registerProcedure)
-    `protocol` = try container.decodeIfPresent(String.self, forKey: .protocol)
-  }
-
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -82,6 +82,8 @@ public struct RSSFeedCloudAttributes: Codable, Equatable, Hashable, Sendable {
     try container.encodeIfPresent(registerProcedure, forKey: .registerProcedure)
     try container.encodeIfPresent(`protocol`, forKey: .protocol)
   }
+
+  // MARK: Private
 
   private enum CodingKeys: String, CodingKey {
     case domain

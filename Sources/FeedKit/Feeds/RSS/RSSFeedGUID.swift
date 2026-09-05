@@ -31,6 +31,11 @@ public struct RSSFeedGUIDAttributes: Codable, Equatable, Hashable, Sendable {
     self.isPermaLink = isPermaLink
   }
 
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    isPermaLink = try container.decodeLossyIfPresent(Bool.self, forKey: .isPermaLink, lossy: decoder.isFeedLossyDecodingEnabled)
+  }
+
   // MARK: Public
 
   /// If the guid element has an attribute named "isPermaLink" with a value of
@@ -45,15 +50,12 @@ public struct RSSFeedGUIDAttributes: Codable, Equatable, Hashable, Sendable {
   /// particular.
   public var isPermaLink: Bool?
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    isPermaLink = try container.decodeLossyIfPresent(Bool.self, forKey: .isPermaLink, lossy: decoder.isFeedLossyDecodingEnabled)
-  }
-
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(isPermaLink, forKey: .isPermaLink)
   }
+
+  // MARK: Private
 
   private enum CodingKeys: String, CodingKey {
     case isPermaLink
