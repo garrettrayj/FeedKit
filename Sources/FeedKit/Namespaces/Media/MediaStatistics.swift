@@ -35,14 +35,6 @@ public struct MediaStatisticsAttributes: Codable, Equatable, Hashable, Sendable 
     self.favorites = favorites
   }
 
-  // MARK: Public
-
-  /// The number of views.
-  public var views: Int?
-
-  /// The number fo favorites.
-  public var favorites: Int?
-
   public init(from decoder: any Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     let lossy = decoder.isFeedLossyDecodingEnabled
@@ -51,12 +43,22 @@ public struct MediaStatisticsAttributes: Codable, Equatable, Hashable, Sendable 
     favorites = try container.decodeLossyIfPresent(Int.self, forKey: .favorites, lossy: lossy)
   }
 
+  // MARK: Public
+
+  /// The number of views.
+  public var views: Int?
+
+  /// The number fo favorites.
+  public var favorites: Int?
+
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encodeIfPresent(views, forKey: .views)
     try container.encodeIfPresent(favorites, forKey: .favorites)
   }
+
+  // MARK: Private
 
   private enum CodingKeys: String, CodingKey {
     case views

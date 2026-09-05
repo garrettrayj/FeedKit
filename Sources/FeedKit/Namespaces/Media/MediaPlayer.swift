@@ -33,6 +33,15 @@ public struct MediaPlayerAttributes: Codable, Equatable, Hashable, Sendable {
     self.height = height
   }
 
+  public init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let lossy = decoder.isFeedLossyDecodingEnabled
+
+    url = try container.decodeIfPresent(String.self, forKey: .url)
+    width = try container.decodeLossyIfPresent(Int.self, forKey: .width, lossy: lossy)
+    height = try container.decodeLossyIfPresent(Int.self, forKey: .height, lossy: lossy)
+  }
+
   // MARK: Public
 
   /// The URL of the player console that plays the media. It is a required attribute.
@@ -46,15 +55,6 @@ public struct MediaPlayerAttributes: Codable, Equatable, Hashable, Sendable {
   /// optional attribute.
   public var height: Int?
 
-  public init(from decoder: any Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    let lossy = decoder.isFeedLossyDecodingEnabled
-
-    url = try container.decodeIfPresent(String.self, forKey: .url)
-    width = try container.decodeLossyIfPresent(Int.self, forKey: .width, lossy: lossy)
-    height = try container.decodeLossyIfPresent(Int.self, forKey: .height, lossy: lossy)
-  }
-
   public func encode(to encoder: any Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
@@ -62,6 +62,8 @@ public struct MediaPlayerAttributes: Codable, Equatable, Hashable, Sendable {
     try container.encodeIfPresent(width, forKey: .width)
     try container.encodeIfPresent(height, forKey: .height)
   }
+
+  // MARK: Private
 
   private enum CodingKeys: String, CodingKey {
     case url
