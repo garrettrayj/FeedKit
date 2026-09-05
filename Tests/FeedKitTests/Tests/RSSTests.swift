@@ -70,7 +70,7 @@ struct RSSTests: FeedKitTestable {
   @Test
   func namespacedSourceExtensionDoesNotDecodeAsRSSSource() throws {
     // Given
-    let data = Data(
+    let data: Data = .init(
       """
       <rss xmlns:source="http://source.scripting.com/" version="2.0">
         <channel>

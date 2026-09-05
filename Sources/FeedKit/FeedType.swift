@@ -129,7 +129,8 @@ public extension FeedType {
     }
 
     switch rootElementName {
-    case "rss", "rdf:rdf":
+    case "rdf:rdf",
+         "rss":
       return .rss
     case "feed":
       return .atom
@@ -195,7 +196,7 @@ public extension FeedType {
         return nil
       }
 
-      return String(string[nameStartIndex..<nameEndIndex])
+      return String(string[nameStartIndex ..< nameEndIndex])
     }
 
     return nil
