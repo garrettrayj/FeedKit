@@ -219,7 +219,7 @@ extension DublinCore: Codable {
     description = try container.decodeIfPresent(String.self, forKey: CodingKeys.description)
     publisher = try container.decodeIfPresent(String.self, forKey: CodingKeys.publisher)
     contributor = try container.decodeIfPresent(String.self, forKey: CodingKeys.contributor)
-    date = try container.decodeIfPresent(Date.self, forKey: CodingKeys.date)
+    date = try container.decodeLossyIfPresent(Date.self, forKey: CodingKeys.date, lossy: decoder.isFeedLossyDecodingEnabled)
     type = try container.decodeIfPresent(String.self, forKey: CodingKeys.type)
     format = try container.decodeIfPresent(String.self, forKey: CodingKeys.format)
     identifier = try container.decodeIfPresent(String.self, forKey: CodingKeys.identifier)

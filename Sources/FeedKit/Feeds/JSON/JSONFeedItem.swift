@@ -212,6 +212,7 @@ extension JSONFeedItem: Codable {
 
   public init(from decoder: Decoder) throws {
     let values = try decoder.container(keyedBy: CodingKeys.self)
+    let lossy = decoder.isFeedLossyDecodingEnabled
     do {
       id = try values.decode(String.self, forKey: .id)
     } catch DecodingError.typeMismatch {
@@ -226,8 +227,8 @@ extension JSONFeedItem: Codable {
     summary = try values.decodeIfPresent(String.self, forKey: .summary)
     image = try values.decodeIfPresent(String.self, forKey: .image)
     bannerImage = try values.decodeIfPresent(String.self, forKey: .banner_image)
-    datePublished = try values.decodeIfPresent(Date.self, forKey: .date_published)
-    dateModified = try values.decodeIfPresent(Date.self, forKey: .date_modified)
+    datePublished = try values.decodeLossyIfPresent(Date.self, forKey: .date_published, lossy: lossy)
+    dateModified = try values.decodeLossyIfPresent(Date.self, forKey: .date_modified, lossy: lossy)
     tags = try values.decodeIfPresent([String].self, forKey: .tags)
     let author = try values.decodeIfPresent(JSONFeedAuthor.self, forKey: .author)
     let authors = try values.decodeIfPresent([JSONFeedAuthor].self, forKey: .authors)

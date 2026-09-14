@@ -252,17 +252,18 @@ extension AtomFeedEntry: Codable {
 
   public init(from decoder: any Decoder) throws {
     let container: KeyedDecodingContainer<CodingKeys> = try decoder.container(keyedBy: CodingKeys.self)
+    let lossy = decoder.isFeedLossyDecodingEnabled
 
     title = try container.decodeIfPresent(String.self, forKey: CodingKeys.title)
     summary = try container.decodeIfPresent(AtomFeedSummary.self, forKey: CodingKeys.summary)
     authors = try container.decodeIfPresent([AtomFeedAuthor].self, forKey: CodingKeys.author)
     contributors = try container.decodeIfPresent([AtomFeedContributor].self, forKey: CodingKeys.contributor)
     links = try container.decodeIfPresent([AtomFeedLink].self, forKey: CodingKeys.link)
-    updated = try container.decodeIfPresent(Date.self, forKey: CodingKeys.updated)
+    updated = try container.decodeLossyIfPresent(Date.self, forKey: CodingKeys.updated, lossy: lossy)
     categories = try container.decodeIfPresent([AtomFeedCategory].self, forKey: CodingKeys.category)
     id = try container.decodeIfPresent(String.self, forKey: CodingKeys.id)
     content = try container.decodeIfPresent(AtomFeedContent.self, forKey: CodingKeys.content)
-    published = try container.decodeIfPresent(Date.self, forKey: CodingKeys.published)
+    published = try container.decodeLossyIfPresent(Date.self, forKey: CodingKeys.published, lossy: lossy)
     source = try container.decodeIfPresent(AtomFeedSource.self, forKey: CodingKeys.source)
     rights = try container.decodeIfPresent(String.self, forKey: CodingKeys.rights)
     media = try container.decodeIfPresent(Media.self, forKey: CodingKeys.media)

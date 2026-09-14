@@ -289,7 +289,7 @@ extension RSSFeedItem: Codable {
     comments = try container.decodeIfPresent(String.self, forKey: CodingKeys.comments)
     enclosure = try container.decodeIfPresent(RSSFeedEnclosure.self, forKey: CodingKeys.enclosure)
     guid = try container.decodeIfPresent(RSSFeedGUID.self, forKey: CodingKeys.guid)
-    pubDate = try container.decodeIfPresent(Date.self, forKey: CodingKeys.pubDate)
+    pubDate = try container.decodeLossyIfPresent(Date.self, forKey: CodingKeys.pubDate, lossy: decoder.isFeedLossyDecodingEnabled)
     source = try container.decodeIfPresent(RSSFeedSource.self, forKey: CodingKeys.source)
     dublinCore = try container.decodeIfPresent(DublinCore.self, forKey: CodingKeys.dublinCore)
     content = try container.decodeIfPresent(Content.self, forKey: CodingKeys.content)

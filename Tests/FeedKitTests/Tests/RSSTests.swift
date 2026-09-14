@@ -68,6 +68,19 @@ struct RSSTests: FeedKitTestable {
   }
 
   @Test
+  func lossyDecodingAllowsMalformedOptionalDates() throws {
+    // Given
+    let data = data(resource: "LossyRSS", withExtension: "xml")
+
+    // When
+    let actual = try RSSFeed(data: data, lossy: true)
+
+    // Then
+    #expect(actual.channel?.items?.first?.pubDate == nil)
+    #expect(actual.channel?.lastBuildDate != nil)
+  }
+
+  @Test
   func namespacedSourceExtensionDoesNotDecodeAsRSSSource() throws {
     // Given
     let data: Data = .init(

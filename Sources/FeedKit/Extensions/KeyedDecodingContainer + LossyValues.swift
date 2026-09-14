@@ -99,6 +99,17 @@ extension KeyedDecodingContainer {
 
     return value.toBool()
   }
+
+  func decodeLossyIfPresent(_: Date.Type, forKey key: Key, lossy: Bool) throws -> Date? {
+    if !lossy {
+      return try decodeIfPresent(Date.self, forKey: key)
+    }
+
+    // The date decoding strategy has already exhausted every supported
+    // format by the time it throws, so there is no string fallback to
+    // attempt; an unparseable date is simply dropped.
+    return try? decodeIfPresent(Date.self, forKey: key)
+  }
 }
 
 enum FeedDecodingContext {
