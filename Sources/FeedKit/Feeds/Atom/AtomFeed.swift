@@ -249,7 +249,7 @@ extension AtomFeed: Codable {
     title = try container.decodeIfPresent(AtomFeedTitle.self, forKey: CodingKeys.title)
     subtitle = try container.decodeIfPresent(AtomFeedSubtitle.self, forKey: CodingKeys.subtitle)
     links = try container.decodeIfPresent([AtomFeedLink].self, forKey: CodingKeys.link)
-    updated = try container.decodeFeedDate(forKey: CodingKeys.updated)
+    updated = try container.decodeFeedDate(forKey: CodingKeys.updated, lossy: decoder.isFeedLossyDecodingEnabled)
     categories = try container.decodeIfPresent([AtomFeedCategory].self, forKey: CodingKeys.category)
     authors = try container.decodeIfPresent([AtomFeedAuthor].self, forKey: CodingKeys.author)
     contributors = try container.decodeIfPresent([AtomFeedContributor].self, forKey: CodingKeys.contributor)

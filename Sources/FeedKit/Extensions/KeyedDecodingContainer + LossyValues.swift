@@ -99,6 +99,20 @@ extension KeyedDecodingContainer {
 
     return value.toBool()
   }
+
+  /// Decodes a feed date, dropping it when `lossy` is set and the text cannot
+  /// be read as a date.
+  ///
+  /// `decodeFeedDate(forKey:)` has already tried every format the library
+  /// understands by the time it throws, so there is no further fallback to
+  /// attempt; in lossy mode an unreadable date is simply `nil`.
+  func decodeFeedDate(forKey key: Key, lossy: Bool) throws -> Date? {
+    if !lossy {
+      return try decodeFeedDate(forKey: key)
+    }
+
+    return try? decodeFeedDate(forKey: key)
+  }
 }
 
 enum FeedDecodingContext {

@@ -3,7 +3,8 @@
   <channel>
     <title>Lossy RSS</title>
     <link>https://example.com/</link>
-    <description>Feed with malformed optional numeric values.</description>
+    <description>Feed with malformed optional numeric and date values.</description>
+    <lastBuildDate>Thu, 10 Sep 2026 15:00:00 +0200</lastBuildDate>
     <image>
       <url>https://example.com/logo.png</url>
       <title>Lossy RSS</title>
@@ -15,6 +16,7 @@
       <title>Episode 1</title>
       <link>https://example.com/episodes/1</link>
       <description>First episode.</description>
+      <pubDate>Thu, 10 Sept 2026 15:00:00 +0200</pubDate>
       <enclosure
         url="https://example.com/audio/episode-1.mp3"
         length="12216320 bytes"
